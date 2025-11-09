@@ -1,0 +1,35 @@
+### Create account
+POST {{ACCOUNTS_URL}}/api/create HTTP/1.1
+Content-Type: application/json
+
+{
+    "name": "Carlos Perez",
+    "email": "carlosjulioperez@gmail.com",
+    "mobileNumber": "1234567890"
+}
+
+### Get customer by mobileNumber +598 092062120 encoded [%2B598%20092062120]
+GET {{ACCOUNTS_URL}}/api/fetch?mobileNumber=1234567890 HTTP/1.1
+
+### Update Account
+PUT {{ACCOUNTS_URL}}/api/update HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "Carlos Julio Perez Quizhpe",
+  "email": "carlosjulioperez@gmail.com",
+  "mobileNumber": "1234567890",
+  "accountsDto": {
+    "accountNumber": 1145525944,
+    "accountType": "Savings updated",
+    "branchAddress": "123 Main Street, New York"
+  }
+}
+
+### Delete Account
+DELETE {{ACCOUNTS_URL}}/api/delete?mobileNumber=1234567890 HTTP/1.1
+
+How write the vscode REST client GET request with mobileNumber parameter where that field is saves in the database as "+598 092062120" (considere the space between 8 and 0)
+
+//TODO
+Validations pom.xml etc

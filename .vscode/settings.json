@@ -1,0 +1,20 @@
+{
+  "rest-client.environmentVariables": {
+    "dev": {
+      "ACCOUNTS_URL": "http://localhost:8080",
+      "API_KEY": "dev-api-key"
+    },
+    "qa": {
+      "ACCOUNTS_URL": "https://qa.example.com",
+      "API_KEY": "qa-api-key"
+    },
+    "stg": {
+      "ACCOUNTS_URL": "https://stg.example.com",
+      "API_KEY": "stg-api-key"
+    },
+    "prd": {
+      "ACCOUNTS_URL": "https://api.example.com",
+      "API_KEY": "prd-api-key"
+    }
+  }
+}
