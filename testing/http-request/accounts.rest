@@ -30,6 +30,3 @@ Content-Type: application/json
 DELETE {{ACCOUNTS_URL}}/api/delete?mobileNumber=1234567890 HTTP/1.1
 
 How write the vscode REST client GET request with mobileNumber parameter where that field is saves in the database as "+598 092062120" (considere the space between 8 and 0)
-
-//TODO
-Validations pom.xml etc
