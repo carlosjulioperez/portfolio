@@ -675,3 +675,44 @@ docker pull carlosjulioperez/cards:s4
 ```bash
 docker compose version
 ```
+
+docker-compose.yaml:
+```yaml
+services:
+  accounts:
+    image: "carlosjulioperez/accounts:s4"
+    container_name: accounts-ms
+    ports:
+      - "8080:8080"
+    deploy:
+      resources:
+        limits:
+          memory: 700m
+    networks:
+      - demobank
+  loans:
+    image: "carlosjulioperez/loans:s4"
+    container_name: loans-ms
+    ports:
+      - "8090:8090"
+    deploy:
+      resources:
+        limits:
+          memory: 700m
+    networks:
+      - demobank
+  cards:
+    image: "carlosjulioperez/cards:s4"
+    container_name: cards-ms
+    ports:
+      - "9000:9000"
+    deploy:
+      resources:
+        limits:
+          memory: 700m
+    networks:
+      - demobank
+networks:
+  demobank:
+    driver: "bridge"
+```
