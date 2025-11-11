@@ -7,7 +7,6 @@
     - [sdkman](#sdkman)
       - [Java 17](#java-17)
       - [Maven](#maven)
-      - [Docker](#docker)
     - [vscode](#vscode)
       - [Extensions](#extensions)
       - [Environment variables](#environment-variables)
@@ -29,6 +28,10 @@
       - [OpenAPI](#openapi)
       - [springdoc-openapi](#springdoc-openapi)
       - [Swagger](#swagger)
+    - [Images](#images)
+      - [Docker](#docker)
+      - [Cloud Native Buildpacks](#cloud-native-buildpacks)
+      - [Google Jib](#google-jib)
 
 ## Patterns
 ### Strangler Fig Pattern
@@ -112,19 +115,6 @@ mvn spring-boot:run
 java -jar target/accounts-0.0.1-SNAPSHOT.jar
 ```
 
-#### Docker
-```bash
-docker build . -t carper/accounts:s4
-docker images
-docker inspect <image_id> (3 or 4 characters)
-docker run -p 8080:8080 carper/accounts:s4
-docker run -d -p 8080:8080 carper/accounts:s4 (detached)
-docker ps
-docker ps -a
-...
-docker start <container_id>
-docker stop <container_id>
-```
 
 ### vscode
 #### Extensions
@@ -452,3 +442,97 @@ pom.xml:
   * OpenAPI = Specification
 
 * Then, visit: http://localhost:8080/swagger-ui.html
+
+### Images
+#### Docker
+* https://www.docker.com/
+* Docker helps developers build, share, run, and verify applications anywhere — without tedious environment configuration or management.
+
+* Adding `packaging` section to accounts' pom.xml
+```xml
+<version>0.0.1-SNAPSHOT</version>
+<packaging>jar</packaging>
+```
+
+* Docker terminal commands
+```bash
+docker build . -t carper/accounts:s4
+docker images
+docker inspect <image_id> (3 or 4 characters)
+docker run -p 8080:8080 carper/accounts:s4
+docker run -d -p 8080:8080 carper/accounts:s4 (detached)
+docker ps
+docker ps -a
+...
+docker start <container_id>
+docker stop <container_id>
+```
+
+#### Cloud Native Buildpacks
+* https://buildpacks.io/
+* Cloud Native Buildpacks (CNBs) transform your application source code into container images that can run on any cloud. With buildpacks, organizations can concentrate the knowledge of container build best practices within a specialized team, instead of having application developers across the organization individually maintain their own Dockerfiles. This makes it easier to know what is inside application images, enforce security and compliance requirements, and perform upgrades with minimal effort and intervention.
+* Buildpacks were first conceived by Heroku in 2011. Since then, they have been adopted by Cloud Foundry and other PaaS such as Google App Engine, Gitlab, Knative, Deis, Dokku, and Drie.
+
+* Adding `packaging` section to loans' pom.xml
+```xml
+<version>0.0.1-SNAPSHOT</version>
+<packaging>jar</packaging>
+```
+
+* Adding `image` section into `configuration` of `spring-boot-maven-plugin` to loans' pom.xml
+```xml
+    <artifactId>spring-boot-maven-plugin</artifactId>
+    <configuration>
+      <image>
+          <name>carper/${project.artifactId}:s4</name>
+      </image>
+```
+
+* Generating docker image into loans's directory
+```bash
+mvn spring-boot:build-image
+docker images
+
+carper@dev loans % docker images
+REPOSITORY                                 TAG       IMAGE ID       CREATED        SIZE
+carper/accounts                            s4        d1f0ce1c2a31   3 hours ago    551MB
+paketobuildpacks/ubuntu-noble-run-tiny     0.0.38    c1e27ee34940   7 days ago     22MB
+carper/loans                               s4        f7c4d4357edd   45 years ago   280MB
+paketobuildpacks/builder-noble-java-tiny   latest    8fdefaa524ce   45 years ago   813MB
+
+docker run -d -p 8090:8090 carper/loans:s4
+```
+
+#### Google Jib
+* https://github.com/GoogleContainerTools/jib
+* Jib builds optimized Docker and OCI images for your Java applications without a Docker daemon - and without deep mastery of Docker best-practices. It is available as plugins for Maven and Gradle and as a Java library.
+
+* Set up<br>
+In your Maven Java project, add the plugin to your cards' pom.xml:
+```xml
+<project>
+  ...
+  <build>
+    <plugins>
+      ...
+      <plugin>
+        <groupId>com.google.cloud.tools</groupId>
+        <artifactId>jib-maven-plugin</artifactId>
+        <version>3.4.6</version>
+        <configuration>
+          <to>
+            <image>myimage</image>
+          </to>
+        </configuration>
+      </plugin>
+      ...
+    </plugins>
+  </build>
+  ...
+</project>
+```
+* Adding `packaging` section to cards' pom.xml
+```xml
+<version>0.0.1-SNAPSHOT</version>
+<packaging>jar</packaging>
+```
