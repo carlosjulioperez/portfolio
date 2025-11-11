@@ -91,7 +91,7 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
                     <image>
-                        <name>carper/${project.artifactId}:s4</name>
+                        <name>carlosjulioperez/${project.artifactId}:s4</name>
                     </image>
 					<excludes>
 						<exclude>

@@ -32,7 +32,8 @@
       - [Docker](#docker)
       - [Cloud Native Buildpacks](#cloud-native-buildpacks)
       - [Google Jib](#google-jib)
-      - [Pushing Docker images to Docker Hub](#pushing-docker-images-to-docker-hub)
+    - [Pushing Docker images to Docker Hub](#pushing-docker-images-to-docker-hub)
+    - [Docker Compose](#docker-compose)
 
 ## Patterns
 ### Strangler Fig Pattern
@@ -449,6 +450,22 @@ pom.xml:
 * https://www.docker.com/
 * Docker helps developers build, share, run, and verify applications anywhere — without tedious environment configuration or management.
 
+Dockerfile
+```dockerfile
+#Start with a base image containing Java runtime
+FROM openjdk:26-ea-17-jdk-slim
+
+# MAINTAINER instruction is deprecated in favor of using label
+#Information around who maintains the image
+LABEL "org.opencontainers.image.authors"="carper.com"
+
+# Add the application's jar to the image
+COPY target/accounts-0.0.1-SNAPSHOT.jar accounts-0.0.1-SNAPSHOT.jar
+
+# execute the application
+ENTRYPOINT ["java", "-jar", "accounts-0.0.1-SNAPSHOT.jar"]
+```
+
 Adding `packaging` section to accounts' pom.xml:
 ```xml
 <version>0.0.1-SNAPSHOT</version>
@@ -457,14 +474,97 @@ Adding `packaging` section to accounts' pom.xml:
 
 Docker terminal commands:
 ```bash
-docker build . -t carper/accounts:s4
+# 1. Log in to Docker Hub
+docker login
+# 2. Build your image under your username
+docker build -t carlosjulioperez/accounts:s4 .
+# 3. Push to Docker Hub
+docker push carlosjulioperez/accounts:s4
+
 docker images
+REPOSITORY                  TAG       IMAGE ID       CREATED        SIZE
+carlosjulioperez/accounts   s4        d1f0ce1c2a31   16 hours ago   551MB
+
 docker inspect <image_id> (3 or 4 characters)
-docker run -p 8080:8080 carper/accounts:s4
-docker run -d -p 8080:8080 carper/accounts:s4 (detached)
+docker inspect d1f
+```
+```json
+[
+    {
+        "Id": "sha256:d1f0ce1c2a31a6f2d0f472d3a64c5bc8200efa25cea4e9ef7283c4f495e9f0d6",
+        "RepoTags": [
+            "carlosjulioperez/accounts:s4"
+        ],
+        "RepoDigests": [],
+        "Parent": "",
+        "Comment": "buildkit.dockerfile.v0",
+        "Created": "2025-11-10T22:22:53.369052197Z",
+        "DockerVersion": "",
+        "Author": "",
+        "Config": {
+            "Hostname": "",
+            "Domainname": "",
+            "User": "",
+            "AttachStdin": false,
+            "AttachStdout": false,
+            "AttachStderr": false,
+            "Tty": false,
+            "OpenStdin": false,
+            "StdinOnce": false,
+            "Env": [
+                "PATH=/usr/local/openjdk-26/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                "JAVA_HOME=/usr/local/openjdk-26",
+                "LANG=C.UTF-8",
+                "JAVA_VERSION=26-ea+17"
+            ],
+            "Cmd": null,
+            "Image": "",
+            "Volumes": null,
+            "WorkingDir": "",
+            "Entrypoint": [
+                "java",
+                "-jar",
+                "accounts-0.0.1-SNAPSHOT.jar"
+            ],
+            "OnBuild": null,
+            "Labels": {
+                "org.opencontainers.image.authors": "carper.com"
+            }
+        },
+        "Architecture": "amd64",
+        "Os": "linux",
+        "Size": 551080288,
+        "GraphDriver": {
+            "Data": {
+                "LowerDir": "/var/lib/docker/overlay2/eb06b8901fe21cd0c9ae13aec8289be463be78edd121b8d4b8a115452ce86038/diff:/var/lib/docker/overlay2/cfa7f89eacba3f090c1e07e4c9a9a7f1c159f563d7dd334679185401200adc9c/diff:/var/lib/docker/overlay2/624b59fce203b15ba7fb1106718f6d3bd35ad093add101f097a8ff2cd476428c/diff",
+                "MergedDir": "/var/lib/docker/overlay2/p106rg79z371j85vbsjgne9ea/merged",
+                "UpperDir": "/var/lib/docker/overlay2/p106rg79z371j85vbsjgne9ea/diff",
+                "WorkDir": "/var/lib/docker/overlay2/p106rg79z371j85vbsjgne9ea/work"
+            },
+            "Name": "overlay2"
+        },
+        "RootFS": {
+            "Type": "layers",
+            "Layers": [
+                "sha256:1d46119d249f7719e1820e24a311aa7c453f166f714969cffe89504678eaa447",
+                "sha256:aeb8eb818d560d73d995861c727985da874ea853c12ee6e57934bb5fd7924b36",
+                "sha256:7f0bf75582dea8b2ba7cf4cf509c9feefada1d360660a285c128194943af66c0",
+                "sha256:ad19eaba2caa3b7450de41f52cfef8a5d7dcb6aa91bc2537d99e93ab15a8af34"
+            ]
+        },
+        "Metadata": {
+            "LastTagTime": "2025-11-11T14:43:37.520063168Z"
+        }
+    }
+]
+```
+
+```bash
+docker run -p 8080:8080 carlosjulioperez/accounts:s4
+docker run -d -p 8080:8080 carlosjulioperez/accounts:s4 (detached)
 docker ps
 docker ps -a
-...
+
 docker start <container_id>
 docker stop <container_id>
 ```
@@ -485,7 +585,7 @@ Adding `image` section into `configuration` of `spring-boot-maven-plugin` to loa
     <artifactId>spring-boot-maven-plugin</artifactId>
     <configuration>
       <image>
-          <name>carper/${project.artifactId}:s4</name>
+          <name>carlosjulioperez/${project.artifactId}:s4</name>
       </image>
 ```
 
@@ -495,12 +595,12 @@ mvn spring-boot:build-image
 docker images
 
 REPOSITORY                                 TAG       IMAGE ID       CREATED        SIZE
-carper/accounts                            s4        d1f0ce1c2a31   3 hours ago    551MB
+carlosjulioperez/accounts                  s4        d1f0ce1c2a31   17 hours ago   551MB
 paketobuildpacks/ubuntu-noble-run-tiny     0.0.38    c1e27ee34940   7 days ago     22MB
-carper/loans                               s4        f7c4d4357edd   45 years ago   280MB
+carlosjulioperez/loans                     s4        21bd56c748bd   45 years ago   280MB
 paketobuildpacks/builder-noble-java-tiny   latest    8fdefaa524ce   45 years ago   813MB
 
-docker run -d -p 8090:8090 carper/loans:s4
+docker run -p 8090:8090 carlosjulioperez/loans:s4
 ```
 
 #### Google Jib
@@ -521,7 +621,7 @@ Adding `jib-maven-plugin` section to cards' pom.xml:
   <version>3.4.6</version>
   <configuration>
     <to>
-      <image>carper/${project.artifactId}:s4</image>
+      <image>carlosjulioperez/${project.artifactId}:s4</image>
     </to>
   </configuration>
 </plugin>
@@ -533,21 +633,45 @@ mvn compile jib:dockerBuild
 docker images
 
 REPOSITORY                                 TAG       IMAGE ID       CREATED        SIZE
-carper/accounts                            s4        d1f0ce1c2a31   5 hours ago    551MB
+carlosjulioperez/accounts                  s4        d1f0ce1c2a31   17 hours ago   551MB
 paketobuildpacks/ubuntu-noble-run-tiny     0.0.38    c1e27ee34940   7 days ago     22MB
 paketobuildpacks/builder-noble-java-tiny   latest    8fdefaa524ce   45 years ago   813MB
-carper/loans                               s4        f7c4d4357edd   45 years ago   280MB
-carper/cards                               s4        add8163f6cc7   55 years ago   326MB
+carlosjulioperez/loans                     s4        21bd56c748bd   45 years ago   280MB
+carlosjulioperez/cards                     s4        add8163f6cc7   55 years ago   326MB
 
-docker run -d -p 9000:9000 carper/cards:s4
+docker run -p 9000:9000 carlosjulioperez/cards:s4
 ```
 
-Build your container image with:
+Build your container image with: (Pushing to Docker Hub)
 ```bash
 mvn compile jib:build
 ```
 
-#### Pushing Docker images to Docker Hub
+### Pushing Docker images to Docker Hub
 ```bash
-docker image push docker.io/carper/accounts:s4
+# 1. Log in to Docker Hub
+docker login
+# 2. Build your image under your username
+docker build -t carlosjulioperez/accounts:s4 .
+# 3. Push to Docker Hub
+docker push carlosjulioperez/accounts:s4
+
+The push refers to repository [docker.io/carlosjulioperez/accounts]
+ad19eaba2caa: Pushing [====================>                              ]  25.59MB/61.11MB
+7f0bf75582de: Pushing [=>                                                 ]     15MB/403.5MB
+aeb8eb818d56: Pushed 
+1d46119d249f: Pushing [=============>                                     ]  21.75MB/78.62MB
+
+docker push carlosjulioperez/loans:s4
+
+docker pull carlosjulioperez/cards:s4
+```
+
+### Docker Compose
+* https://docs.docker.com/compose/
+* Docker Compose is a tool for defining and running multi-container applications. It is the key to unlocking a streamlined and efficient development and deployment experience.
+* Compose simplifies the control of your entire application stack, making it easy to manage services, networks, and volumes in a single YAML configuration file. Then, with a single command, you create and start all the services from your configuration file.
+
+```bash
+docker compose version
 ```
