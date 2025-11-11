@@ -32,6 +32,7 @@
       - [Docker](#docker)
       - [Cloud Native Buildpacks](#cloud-native-buildpacks)
       - [Google Jib](#google-jib)
+      - [Pushing Docker images to Docker Hub](#pushing-docker-images-to-docker-hub)
 
 ## Patterns
 ### Strangler Fig Pattern
@@ -448,13 +449,13 @@ pom.xml:
 * https://www.docker.com/
 * Docker helps developers build, share, run, and verify applications anywhere — without tedious environment configuration or management.
 
-* Adding `packaging` section to accounts' pom.xml
+Adding `packaging` section to accounts' pom.xml:
 ```xml
 <version>0.0.1-SNAPSHOT</version>
 <packaging>jar</packaging>
 ```
 
-* Docker terminal commands
+Docker terminal commands:
 ```bash
 docker build . -t carper/accounts:s4
 docker images
@@ -473,13 +474,13 @@ docker stop <container_id>
 * Cloud Native Buildpacks (CNBs) transform your application source code into container images that can run on any cloud. With buildpacks, organizations can concentrate the knowledge of container build best practices within a specialized team, instead of having application developers across the organization individually maintain their own Dockerfiles. This makes it easier to know what is inside application images, enforce security and compliance requirements, and perform upgrades with minimal effort and intervention.
 * Buildpacks were first conceived by Heroku in 2011. Since then, they have been adopted by Cloud Foundry and other PaaS such as Google App Engine, Gitlab, Knative, Deis, Dokku, and Drie.
 
-* Adding `packaging` section to loans' pom.xml
+Adding `packaging` section to loans' pom.xml:
 ```xml
 <version>0.0.1-SNAPSHOT</version>
 <packaging>jar</packaging>
 ```
 
-* Adding `image` section into `configuration` of `spring-boot-maven-plugin` to loans' pom.xml
+Adding `image` section into `configuration` of `spring-boot-maven-plugin` to loans' pom.xml:
 ```xml
     <artifactId>spring-boot-maven-plugin</artifactId>
     <configuration>
@@ -488,12 +489,11 @@ docker stop <container_id>
       </image>
 ```
 
-* Generating docker image into loans's directory
+Generating docker image into loans's directory:
 ```bash
 mvn spring-boot:build-image
 docker images
 
-carper@dev loans % docker images
 REPOSITORY                                 TAG       IMAGE ID       CREATED        SIZE
 carper/accounts                            s4        d1f0ce1c2a31   3 hours ago    551MB
 paketobuildpacks/ubuntu-noble-run-tiny     0.0.38    c1e27ee34940   7 days ago     22MB
@@ -507,32 +507,47 @@ docker run -d -p 8090:8090 carper/loans:s4
 * https://github.com/GoogleContainerTools/jib
 * Jib builds optimized Docker and OCI images for your Java applications without a Docker daemon - and without deep mastery of Docker best-practices. It is available as plugins for Maven and Gradle and as a Java library.
 
-* Set up<br>
-In your Maven Java project, add the plugin to your cards' pom.xml:
-```xml
-<project>
-  ...
-  <build>
-    <plugins>
-      ...
-      <plugin>
-        <groupId>com.google.cloud.tools</groupId>
-        <artifactId>jib-maven-plugin</artifactId>
-        <version>3.4.6</version>
-        <configuration>
-          <to>
-            <image>myimage</image>
-          </to>
-        </configuration>
-      </plugin>
-      ...
-    </plugins>
-  </build>
-  ...
-</project>
-```
-* Adding `packaging` section to cards' pom.xml
+Adding `packaging` section to cards' pom.xml:
 ```xml
 <version>0.0.1-SNAPSHOT</version>
 <packaging>jar</packaging>
+```
+
+Adding `jib-maven-plugin` section to cards' pom.xml:
+```xml
+<plugin>
+  <groupId>com.google.cloud.tools</groupId>
+  <artifactId>jib-maven-plugin</artifactId>
+  <version>3.4.6</version>
+  <configuration>
+    <to>
+      <image>carper/${project.artifactId}:s4</image>
+    </to>
+  </configuration>
+</plugin>
+```
+
+Build your container image with:
+```bash
+mvn compile jib:dockerBuild
+docker images
+
+REPOSITORY                                 TAG       IMAGE ID       CREATED        SIZE
+carper/accounts                            s4        d1f0ce1c2a31   5 hours ago    551MB
+paketobuildpacks/ubuntu-noble-run-tiny     0.0.38    c1e27ee34940   7 days ago     22MB
+paketobuildpacks/builder-noble-java-tiny   latest    8fdefaa524ce   45 years ago   813MB
+carper/loans                               s4        f7c4d4357edd   45 years ago   280MB
+carper/cards                               s4        add8163f6cc7   55 years ago   326MB
+
+docker run -d -p 9000:9000 carper/cards:s4
+```
+
+Build your container image with:
+```bash
+mvn compile jib:build
+```
+
+#### Pushing Docker images to Docker Hub
+```bash
+docker image push docker.io/carper/accounts:s4
 ```
