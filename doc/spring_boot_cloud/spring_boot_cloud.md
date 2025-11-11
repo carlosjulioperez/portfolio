@@ -7,6 +7,7 @@
     - [sdkman](#sdkman)
       - [Java 17](#java-17)
       - [Maven](#maven)
+      - [Docker](#docker)
     - [vscode](#vscode)
       - [Extensions](#extensions)
       - [Environment variables](#environment-variables)
@@ -104,6 +105,25 @@ java -version
 ```bash
 sdk install maven
 mvn -v
+...
+mvn clean install
+...
+mvn spring-boot:run
+java -jar target/accounts-0.0.1-SNAPSHOT.jar
+```
+
+#### Docker
+```bash
+docker build . -t carper/accounts:s4
+docker images
+docker inspect <image_id> (3 or 4 characters)
+docker run -p 8080:8080 carper/accounts:s4
+docker run -d -p 8080:8080 carper/accounts:s4 (detached)
+docker ps
+docker ps -a
+...
+docker start <container_id>
+docker stop <container_id>
 ```
 
 ### vscode
