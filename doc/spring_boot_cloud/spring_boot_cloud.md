@@ -13,6 +13,7 @@
     - [postman](#postman)
     - [IntelliJ IDEA](#intellij-idea)
       - [Keystrokes](#keystrokes)
+    - [Docker Desktop](#docker-desktop)
   - [SpringBoot](#springboot)
     - [spring initializer](#spring-initializer)
       - [Dependencies](#dependencies)
@@ -155,6 +156,9 @@ brew install --cask postman
 * Option F1 (⌥ + fn + F1) / 1 Project View (Select in Project View)
 * ⌘ = U+2318
 * ⌘ F12: File structure popup 
+
+### Docker Desktop
+* Extensions / find / Logs Explorer
 
 ## SpringBoot
 ### spring initializer
@@ -672,10 +676,6 @@ docker pull carlosjulioperez/cards:s4
 * Docker Compose is a tool for defining and running multi-container applications. It is the key to unlocking a streamlined and efficient development and deployment experience.
 * Compose simplifies the control of your entire application stack, making it easy to manage services, networks, and volumes in a single YAML configuration file. Then, with a single command, you create and start all the services from your configuration file.
 
-```bash
-docker compose version
-```
-
 docker-compose.yaml:
 ```yaml
 services:
@@ -715,4 +715,12 @@ services:
 networks:
   demobank:
     driver: "bridge"
+```
+```bash
+docker compose version
+docker compose up -d
+docker compose down
+
+docker compose stop
+docker compose start
 ```
