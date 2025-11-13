@@ -24,6 +24,7 @@
       - [@MappedSuperClass](#mappedsuperclass)
       - [Auto-Increment ID:](#auto-increment-id)
       - [GlobalExceptionHandler](#globalexceptionhandler)
+      - [@ConfigurationProperties](#configurationproperties)
     - [Project's packages](#projects-packages)
     - [API Documentation](#api-documentation)
       - [OpenAPI](#openapi)
@@ -349,6 +350,54 @@ public class Customer extends BaseEntity {
       }
   }
   ```
+#### @ConfigurationProperties
+* @ConfigurationProperties is a Spring annotation used to bind external configuration properties (like those in application.properties or application.yml) to a Java bean. It allows for easy mapping of properties to a POJO (Plain Old Java Object), making it easier to access and manage configuration values in a type-safe manner.
+
+applications.yaml:
+```yaml
+accounts:
+  message: "Welcome to DemoBank accounts related local APIs"
+  contactDetails:
+    name: "Carlos Perez - Developer"
+    email: "carlosjulioperez@gmail.com"
+  onCallSupport:
+    - (555) 555-1234
+    - ()555 777-1234
+```
+
+Record object:
+```java
+@ConfigurationProperties(prefix = "accounts")
+public record AccountsContactInfoDto(String message, Map<String, String> contactDetails, List<String> onCallSupport) {
+}
+```
+
+```java
+import com.carper.accounts.dto.AccountsContactInfoDto;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+...
+
+@EnableConfigurationProperties(value = AccountsContactInfoDto.class)
+public class AccountsApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(AccountsApplication.class, args);
+	}
+
+}
+```
+
+```java
+public class AccountsController {
+    @Autowired
+    private AccountsContactInfoDto accountsContactInfoDto;
+
+    @GetMapping("/contact-info")
+    public ResponseEntity<AccountsContactInfoDto> getContactInfo() {
+        return ResponseEntity.status(HttpStatus.OK).body(accountsContactInfoDto);
+    }
+}
+```
 
 ### Project's packages
 * Folder structure:
