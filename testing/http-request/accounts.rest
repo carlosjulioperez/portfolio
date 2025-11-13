@@ -1,5 +1,8 @@
-### Get customer by mobileNumber +598 092062120 encoded [%2B598%20092062120]
+### Get build information
 GET {{ACCOUNTS_URL}}/api/build-info HTTP/1.1
+
+### Get Java version
+GET {{ACCOUNTS_URL}}/api/java-version HTTP/1.1
 
 ### Create account
 POST {{ACCOUNTS_URL}}/api/create HTTP/1.1
