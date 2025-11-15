@@ -165,17 +165,21 @@ brew install --cask postman
 ### spring initializer
 * https://start.spring.io/
 * Project: Maven, Language: Java, Spring Boot: 3.5.7
-* Group: com.carper, Artifact/Name/Description: accounts/cards/loans, Package name: com.carper.accounts
+* Group: com.carper, Artifact/Name/Description: accounts/cards/loans/configserver, Package name: com.carper.accounts
 * Packaging: Jar, Configuration: YAML, Java: 17 
 
 #### Dependencies
-* Spring Web
-* H2 Database
-* Spring Data JPA
-* Spring Boot Actuator
-* Spring Boot DevTools
-* Lombok
-* Validation
+* Microservices
+  * Spring Web
+  * H2 Database
+  * Spring Data JPA
+  * Spring Boot Actuator
+  * Spring Boot DevTools
+  * Lombok
+  * Validation
+* Config Server
+  * Config Server (Spring Cloud Config)
+  * Spring Boot Actuator
 
 ### Configuration
 * Refactor rename application.properties -> applications.yaml
