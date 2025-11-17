@@ -20,6 +20,7 @@
     - [Configuration](#configuration)
       - [H2](#h2)
       - [Lombok](#lombok)
+      - [Config Client](#config-client)
     - [Annotations](#annotations)
       - [@MappedSuperClass](#mappedsuperclass)
       - [Auto-Increment ID:](#auto-increment-id)
@@ -175,6 +176,7 @@ brew install --cask postman
   * Spring Data JPA
   * Spring Boot Actuator
   * Spring Boot DevTools
+  * Config Client (Spring Cloud Config)
   * Lombok
   * Validation
 * Config Server
@@ -208,6 +210,34 @@ spring:
 
 #### Lombok
 * Settings / Build, Execution, Deployment / Compiler / Annotation Processors / check "Enable annotation processing"
+
+#### Config Client
+Adding to `spring-cloud.version`, `dependency` and `dependencyManagement` respectively section into each microservice's pom.xml:
+```xml
+  <properties>
+    <java.version>17</java.version> 
+    <spring-cloud.version>2025.0.0</spring-cloud.version> 
+  </properties>
+  ...
+  <dependencies>
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-config</artifactId>
+    </dependency>
+  </dependencies>
+  ...
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-dependencies</artifactId>
+        <version>${spring-cloud.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+```
 
 ### Annotations
 #### @MappedSuperClass
