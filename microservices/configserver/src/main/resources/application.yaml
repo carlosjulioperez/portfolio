@@ -2,12 +2,22 @@ spring:
   application:
     name: "configserver"
   profiles:
-    active: native
+    # active: native
+    active: git
   cloud:
     config:
       server:
-        native:
-          search-locations: "classpath:/config"
+        # native:
+          # search-locations: "classpath:/config"
+        git:
+          uri: "https://github.com/carlosjulioperez/carper-config.git"
+          default-label: main
+          timeout: 5
+          clone-on-start: true
+          force-pull: true
+
+encrypt:
+  key: "EF14B2CA63AA8A6D3FD5FF6D6464F"
 
 server:
   port: 8071

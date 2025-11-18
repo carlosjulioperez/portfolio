@@ -23,7 +23,10 @@
       - [Lombok](#lombok)
       - [Spring Cloud Config Server](#spring-cloud-config-server)
       - [Spring Cloud Config Client](#spring-cloud-config-client)
+      - [Configurations from GitHub Repository](#configurations-from-github-repository)
+      - [Encryption and Decryption properties inside Config Server](#encryption-and-decryption-properties-inside-config-server)
       - [Spring Cloud Bus](#spring-cloud-bus)
+      - [Spring Cloud Config Monitor](#spring-cloud-config-monitor)
     - [Annotations](#annotations)
       - [@MappedSuperClass](#mappedsuperclass)
       - [Auto-Increment ID:](#auto-increment-id)
@@ -319,11 +322,57 @@ spring:
   config:
     import: "configserver:http://localhost:8071/"
 ```
+#### Configurations from GitHub Repository
+* https://github.com/carlosjulioperez/carper-config
+
+![alt text](rcg.png "GitHub")
+
+* This is the most recommended approach to get configurations.
+ 
+aplication.yaml:
+```yaml
+spring:
+  application:
+    name: "configserver"
+  profiles:
+    # active: native
+    active: git
+  cloud:
+    config:
+      server:
+        # native:
+          # search-locations: "classpath:/config"
+        git:
+          uri: "https://github.com/carlosjulioperez/carper-config.git"
+          default-label: main
+          timeout: 5
+          clone-on-start: true
+          force-pull: true
+encrypt:
+  key: "EF14B2CA63AA8A6D3FD5FF6D6464F"
+
+server:
+  port: 8071
+```
+
+#### Encryption and Decryption properties inside Config Server
+* Consider the `encrypt.key` value as 256-bit WEP Key format inside Config Server `application.yaml` file.
+* Encrypt the email with help of this endpoint:
+
+![alt text](encryptedProperty1.png)
+
+* Change the email value with the `{cipher}` prefix and encrypted data:
+
+![alt text](encryptedProperty2.png)
+
+* Navigating to `http://localhost:8071/accounts/prod` we can see the right email's decrypted value:
+
+![alt text](encryptedProperty3.png)
 
 #### Spring Cloud Bus
 * Spring Cloud Bus links nodes of a distributed system with a lightweight message broker. This can then be used to broadcast state changes (e.g. configuration changes) or other management instructions.
 
-pom.xml
+Add this into configserver's pom.xml:
 ```xml
 <dependency>
   <groupId>org.springframework.cloud</groupId>
@@ -331,6 +380,16 @@ pom.xml
 </dependency>
 ```
 
+#### Spring Cloud Config Monitor
+* Spring Cloud Config Monitor facilitates the automatic detection and propagation of configuration changes from a Git repository to connected Spring Cloud Config clients. This functionality, often used in conjunction with Spring Cloud Bus, eliminates the need for manual refreshes of configuration in applications.
+
+pom.xml
+```xml
+<dependency>
+  <groupId>org.springframework.cloud</groupId>
+  <artifactId>spring-cloud-config-monitor</artifactId>
+</dependency>
+```
 ### Annotations
 #### @MappedSuperClass
 * In JPA (Jakarta Persistence API), @MappedSuperclass is used when you want to share common fields or mappings between multiple entity classes — but the superclass itself is not an entity (so it’s not mapped to a database table).
@@ -488,7 +547,7 @@ accounts:
     email: "carlosjulioperez@gmail.com"
   onCallSupport:
     - (555) 555-1234
-    - ()555 777-1234
+    - (555) 777-1234
 ```
 
 Record object:
