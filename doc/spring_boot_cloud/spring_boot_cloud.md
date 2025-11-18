@@ -14,13 +14,16 @@
     - [IntelliJ IDEA](#intellij-idea)
       - [Keystrokes](#keystrokes)
     - [Docker Desktop](#docker-desktop)
+    - [RabbitMQ](#rabbitmq)
   - [SpringBoot](#springboot)
     - [spring initializer](#spring-initializer)
       - [Dependencies](#dependencies)
     - [Configuration](#configuration)
       - [H2](#h2)
       - [Lombok](#lombok)
-      - [Config Client](#config-client)
+      - [Spring Cloud Config Server](#spring-cloud-config-server)
+      - [Spring Cloud Config Client](#spring-cloud-config-client)
+      - [Spring Cloud Bus](#spring-cloud-bus)
     - [Annotations](#annotations)
       - [@MappedSuperClass](#mappedsuperclass)
       - [Auto-Increment ID:](#auto-increment-id)
@@ -162,6 +165,14 @@ brew install --cask postman
 ### Docker Desktop
 * Extensions / find / Logs Explorer
 
+### RabbitMQ
+* RabbitMQ is a reliable and mature messaging and streaming broker, which is easy to deploy on cloud environments, on-premises, and on your local machine. It is currently used by millions worldwide.
+* https://www.rabbitmq.com/ / docs / Install and upgrade
+```bash
+# latest RabbitMQ 4.x
+docker run -it --rm --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:4-management
+```
+
 ## SpringBoot
 ### spring initializer
 * https://start.spring.io/
@@ -176,12 +187,13 @@ brew install --cask postman
   * Spring Data JPA
   * Spring Boot Actuator
   * Spring Boot DevTools
-  * Config Client (Spring Cloud Config)
+  * Spring Cloud Config Client
   * Lombok
   * Validation
 * Config Server
-  * Config Server (Spring Cloud Config)
+  * Spring Cloud Config Server
   * Spring Boot Actuator
+* Spring Cloud Bus
 
 ### Configuration
 * Refactor rename application.properties -> applications.yaml
@@ -211,7 +223,51 @@ spring:
 #### Lombok
 * Settings / Build, Execution, Deployment / Compiler / Annotation Processors / check "Enable annotation processing"
 
-#### Config Client
+#### Spring Cloud Config Server
+ * Spring Cloud Config Server provides an HTTP resource-based API for external configuration (name-value pairs or equivalent YAML content). The server is embeddable in a Spring Boot application, by using the @EnableConfigServer annotation.
+```java
+@SpringBootApplication
+@EnableConfigServer
+public class ConfigserverApplication {
+	public static void main(String[] args) {
+		SpringApplication.run(ConfigserverApplication.class, args);
+	}
+}
+```
+application.yaml
+```yaml
+spring:
+  application:
+    name: "configserver"
+  profiles:
+    active: native
+  cloud:
+    config:
+      server:
+        native:
+          search-locations: "classpath:/config"
+
+server:
+  port: 8071
+```
+```plaintext
+resources
+└── config
+    ├── accounts.yaml
+    ├── accounts-prod.yaml
+    ├── accounts-qa.yaml
+    ├── cards.yaml
+    ├── cards-prod.yaml
+    ├── cards-qa.yaml
+    ├── loans.yaml
+    ├── loans-prod.yaml
+    ├── loans-qa.yaml
+application.yaml
+```
+
+#### Spring Cloud Config Client
+* A Spring Boot application can take immediate advantage of the Spring Config Server (or other external property sources provided by the application developer).
+
 Adding to `spring-cloud.version`, `dependency` and `dependencyManagement` respectively section into each microservice's pom.xml:
 ```xml
   <properties>
@@ -237,6 +293,42 @@ Adding to `spring-cloud.version`, `dependency` and `dependencyManagement` respec
       </dependency>
     </dependencies>
   </dependencyManagement>
+```
+application.yaml
+```yaml
+server:
+  port: 8080
+spring:
+  application:
+    name: "accounts"
+  profiles:
+    active: "prod"
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driverClassName: org.h2.Driver
+    username: sa
+    password: ''
+  h2:
+    console:
+      enabled: true
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  config:
+    import: "configserver:http://localhost:8071/"
+```
+
+#### Spring Cloud Bus
+* Spring Cloud Bus links nodes of a distributed system with a lightweight message broker. This can then be used to broadcast state changes (e.g. configuration changes) or other management instructions.
+
+pom.xml
+```xml
+<dependency>
+  <groupId>org.springframework.cloud</groupId>
+  <artifactId>spring-cloud-bus</artifactId>
+</dependency>
 ```
 
 ### Annotations
