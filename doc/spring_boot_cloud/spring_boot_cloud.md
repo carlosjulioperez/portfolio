@@ -372,11 +372,15 @@ server:
 #### Spring Cloud Bus
 * Spring Cloud Bus links nodes of a distributed system with a lightweight message broker. This can then be used to broadcast state changes (e.g. configuration changes) or other management instructions.
 
-Add this into configserver's pom.xml:
+Add this to configserver and all microservice's pom.xml:
 ```xml
 <dependency>
   <groupId>org.springframework.cloud</groupId>
   <artifactId>spring-cloud-bus</artifactId>
+</dependency>
+<dependency>
+  <groupId>org.springframework.cloud</groupId>
+  <artifactId>spring-cloud-starter-bus-amqp</artifactId>
 </dependency>
 ```
 
