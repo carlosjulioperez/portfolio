@@ -27,6 +27,7 @@
       - [Encryption and Decryption properties inside Config Server](#encryption-and-decryption-properties-inside-config-server)
       - [Spring Cloud Bus](#spring-cloud-bus)
       - [Spring Cloud Config Monitor](#spring-cloud-config-monitor)
+        - [Hookdeck](#hookdeck)
     - [Annotations](#annotations)
       - [@MappedSuperClass](#mappedsuperclass)
       - [Auto-Increment ID:](#auto-increment-id)
@@ -386,6 +387,29 @@ Add this to configserver and all microservice's pom.xml:
 
 #### Spring Cloud Config Monitor
 * Spring Cloud Config Monitor facilitates the automatic detection and propagation of configuration changes from a Git repository to connected Spring Cloud Config clients. This functionality, often used in conjunction with Spring Cloud Bus, eliminates the need for manual refreshes of configuration in applications.
+
+##### Hookdeck 
+* https://hookdeck.com/
+* From webhooks to external event streams, Hookdeck ensures every event is received, processed, and monitored reliably at scale, giving you complete visibility and control.
+* Go to Product / Console / Add Destination
+![alt text](hookdeck.png)
+1. Install the Hookdeck CLI on your device
+```bash
+brew install hookdeck/hookdeck/hookdeck
+```
+2. Login and start the CLI with those commands
+```bash
+hookdeck login --cli-key 3xd8y3b6yopndfyck4qg96435ncvsbw2jqeds4ughb8mmlwzy5
+hookdeck listen 8071 Source --cli-path /monitor
+```
+![alt text](hookdeck-cli.png)
+
+* Go to `carper-config` repository / Settings / Webhooks / Add webhook
+  * Payload URL: `https://hkdk.events/y5dqpg9mwaj253`
+  * Content type: application/json
+  * Click on `Add webhook`
+![alt text](hookdeck-add.png)
+![alt text](hookdeck-added.png)
 
 pom.xml
 ```xml
