@@ -3,6 +3,10 @@
 - [SpringBoot Docker Kubernetes](#springboot-docker-kubernetes)
   - [Patterns](#patterns)
     - [Strangler Fig Pattern](#strangler-fig-pattern)
+  - [Cloud-Native Architecture](#cloud-native-architecture)
+    - [Container Orchestration](#container-orchestration)
+      - [Liveness and Readiness](#liveness-and-readiness)
+        - [Spring Boot Actuator Health Endpoints](#spring-boot-actuator-health-endpoints)
   - [DevTools](#devtools)
     - [sdkman](#sdkman)
       - [Java 17](#java-17)
@@ -28,6 +32,7 @@
       - [Spring Cloud Bus](#spring-cloud-bus)
       - [Spring Cloud Config Monitor](#spring-cloud-config-monitor)
         - [Hookdeck](#hookdeck)
+      - [Liveness and Readiness using Docker Compose and RabbitMQ](#liveness-and-readiness-using-docker-compose-and-rabbitmq)
     - [Annotations](#annotations)
       - [@MappedSuperClass](#mappedsuperclass)
       - [Auto-Increment ID:](#auto-increment-id)
@@ -101,6 +106,45 @@ print(facade.get_user(500))    # Uses legacy system
 print(facade.get_user(1500))   # Uses new system
 ```
 
+## Cloud-Native Architecture
+### Container Orchestration
+#### Liveness and Readiness
+
+Liveness Probe
+* Checks if the service is alive (i.e., not stuck or deadlocked).
+* If it fails, Kubernetes restarts the container.
+* Purpose: Keep the app running by restarting broken instances.
+
+Readiness Probe
+* Checks if the service is ready to receive traffic (e.g., finished startup tasks, connected to DB).
+* If it fails, Kubernetes stops sending traffic to that pod but does not restart it.
+* Purpose: Prevent traffic from hitting an unready service.
+
+In short:
+* Liveness = should this container be restarted?
+* Readiness = should this container receive traffic yet?
+
+##### Spring Boot Actuator Health Endpoints
+Actuator exposes:
+* /actuator/health/liveness
+* /actuator/health/readiness
+
+In your pod configuration, you point the probes to Actuator:
+```yaml
+livenessProbe:
+  httpGet:
+    path: /actuator/health/liveness
+    port: 8080
+
+readinessProbe:
+  httpGet:
+    path: /actuator/health/readiness
+    port: 8080
+```
+Why Actuator matters
+* It automatically reports whether your Spring Boot app is alive or ready.
+* You can add custom health indicators to reflect DB, message brokers, external services, etc.
+
 ## DevTools
 ### sdkman
 SDKMAN is a tool that lets you easily install and manage Java, Maven, and other SDKs.
@@ -130,7 +174,7 @@ java -jar target/accounts-0.0.1-SNAPSHOT.jar
 
 ### vscode
 #### Extensions
-* REST Client, vim, JSON Crack
+* REST Client, vim, JSON Crack, Prettier
 #### Environment variables
 .vscode/settings.json
 ```JSON
@@ -176,6 +220,7 @@ brew install --cask postman
 # latest RabbitMQ 4.x
 docker run -it --rm --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:4-management
 ```
+![alt text](rabbitmq.png)
 
 ## SpringBoot
 ### spring initializer
@@ -418,6 +463,162 @@ pom.xml
   <artifactId>spring-cloud-config-monitor</artifactId>
 </dependency>
 ```
+#### Liveness and Readiness using Docker Compose and RabbitMQ
+docker-compose.yaml
+```yaml
+services:
+  configserver:
+    image: "carlosjulioperez/configserver:s6"
+    container_name: configserver-ms
+    ports:
+      - "8071:8071"
+    deploy:
+      resources:
+        limits:
+          memory: 700m
+    networks:
+      - demobank
+  accounts:
+    image: "carlosjulioperez/accounts:s6"
+    container_name: accounts-ms
+    ports:
+      - "8080:8080"
+    deploy:
+      resources:
+        limits:
+          memory: 700m
+    networks:
+      - demobank
+    environment:
+      SPRING_APPLICATION_NAME: "accounts"
+      SPRING_CONFIG_IMPORT: "configserver:http://configserver:8071/"
+      SPRING_PROFILES_ACTIVE: default
+  loans:
+    image: "carlosjulioperez/loans:s6"
+    container_name: loans-ms
+    ports:
+      - "8090:8090"
+    deploy:
+      resources:
+        limits:
+          memory: 700m
+    networks:
+      - demobank
+    environment:
+      SPRING_APPLICATION_NAME: "loans"
+      SPRING_CONFIG_IMPORT: "configserver:http://configserver:8071/"
+      SPRING_PROFILES_ACTIVE: default
+  cards:
+    image: "carlosjulioperez/cards:s6"
+    container_name: cards-ms
+    ports:
+      - "9000:9000"
+    deploy:
+      resources:
+        limits:
+          memory: 700m
+    networks:
+      - demobank
+    environment:
+      SPRING_APPLICATION_NAME: "cards"
+      SPRING_CONFIG_IMPORT: "configserver:http://configserver:8071/"
+      SPRING_PROFILES_ACTIVE: default
+networks:
+  demobank:
+    driver: "bridge"
+```
+
+Config Server pom.xml
+```xml
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-actuator</artifactId>
+</dependency>
+```
+
+application.yaml
+```yaml
+server:
+  port: 8080
+spring:
+  application:
+    name: "accounts"
+  profiles:
+    active: "prod"
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driverClassName: org.h2.Driver
+    username: sa
+    password: ''
+  h2:
+    console:
+      enabled: true
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  config:
+    import: "configserver:http://localhost:8071/"
+  rabbitmq:
+    host: "localhost"
+    port: 5672
+    username: "guest"
+    password: "guest"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  health:
+    readiness-state:
+      enabled: true
+    liveness-state:
+      enabled: true
+  endpoint:
+    health:
+      probes:
+        enabled: true
+```
+
+* Start Config server
+
+http://localhost:8071/actuator/health
+```json
+{
+  "status": "UP"
+}
+```
+
+* http://localhost:8071/actuator/liveness
+```json
+{
+  "name": "actuator",
+  "profiles": [
+    "liveness"
+  ],
+  "label": null,
+  "version": "636af034f9b9d1fd710514274e762d1d960c921a",
+  "state": "",
+  "propertySources": []
+}
+```
+
+http://localhost:8071/actuator/readiness
+```json
+{
+  "name": "actuator",
+  "profiles": [
+    "readiness"
+  ],
+  "label": null,
+  "version": "636af034f9b9d1fd710514274e762d1d960c921a",
+  "state": "",
+  "propertySources": []
+}
+```
+
 ### Annotations
 #### @MappedSuperClass
 * In JPA (Jakarta Persistence API), @MappedSuperclass is used when you want to share common fields or mappings between multiple entity classes — but the superclass itself is not an entity (so it’s not mapped to a database table).
