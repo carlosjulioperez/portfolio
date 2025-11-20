@@ -33,6 +33,7 @@
       - [Spring Cloud Config Monitor](#spring-cloud-config-monitor)
         - [Hookdeck](#hookdeck)
       - [Liveness and Readiness using Docker Compose and RabbitMQ](#liveness-and-readiness-using-docker-compose-and-rabbitmq)
+        - [Running RabbitMQ, Config Server and regarding microservices with Docker compose](#running-rabbitmq-config-server-and-regarding-microservices-with-docker-compose)
     - [Annotations](#annotations)
       - [@MappedSuperClass](#mappedsuperclass)
       - [Auto-Increment ID:](#auto-increment-id)
@@ -619,6 +620,20 @@ http://localhost:8071/actuator/readiness
 }
 ```
 
+* Pushing images
+```bash
+docker push carlosjulioperez/accounts:s6
+docker push carlosjulioperez/loans:s6
+docker push carlosjulioperez/cards:s6
+docker push carlosjulioperez/configserver:s6
+```
+
+##### Running RabbitMQ, Config Server and regarding microservices with Docker compose
+```bash
+docker compose up -d
+```
+![alt text](runningAll.png)
+
 ### Annotations
 #### @MappedSuperClass
 * In JPA (Jakarta Persistence API), @MappedSuperclass is used when you want to share common fields or mappings between multiple entity classes — but the superclass itself is not an entity (so it’s not mapped to a database table).
@@ -1115,6 +1130,8 @@ mvn compile jib:build
 ```
 
 ### Pushing Docker images to Docker Hub
+* https://hub.docker.com/repositories/carlosjulioperez
+
 ```bash
 # 1. Log in to Docker Hub
 docker login
@@ -1130,7 +1147,6 @@ aeb8eb818d56: Pushed
 1d46119d249f: Pushing [=============>                                     ]  21.75MB/78.62MB
 
 docker push carlosjulioperez/loans:s4
-
 docker pull carlosjulioperez/cards:s4
 ```
 
