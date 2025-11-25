@@ -19,6 +19,8 @@
       - [Keystrokes](#keystrokes)
     - [Docker Desktop](#docker-desktop)
     - [RabbitMQ](#rabbitmq)
+    - [SQL Electron](#sql-electron)
+    - [MySQL support](#mysql-support)
   - [SpringBoot](#springboot)
     - [spring initializer](#spring-initializer)
       - [Dependencies](#dependencies)
@@ -219,9 +221,19 @@ brew install --cask postman
 * https://www.rabbitmq.com/ / docs / Install and upgrade
 ```bash
 # latest RabbitMQ 4.x
-docker run -it --rm --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:4-management
+docker run -it --rm --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:4-management=root
 ```
 ![alt text](rabbitmq.png)
+
+### SQL Electron
+Download SQL Electron v1.38
+
+### MySQL support
+```bash
+docker run -p 3306:3306 --name accountsdb -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=accountsdb -d mysql
+docker run -p 3307:3306 --name loansdb -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=loansdb -d mysql
+docker run -p 3308:3306 --name cardsdb -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=cardsdb -d mysql
+```
 
 ## SpringBoot
 ### spring initializer
@@ -1049,6 +1061,9 @@ docker ps -a
 
 docker start <container_id>
 docker stop <container_id>
+
+docker rm <container_id>
+docker rm -f <container_id>
 ```
 
 #### Cloud Native Buildpacks
