@@ -1,6 +1,4 @@
-# Portfolio
-
-## DemoBank: Microservices with Java, SpringBoot, Docker and Kubernetes
+# DemoBank: Microservices with Java, SpringBoot, Docker and Kubernetes
 * Domain-Driven Design (DDD) architecture
 * Cloud Native Architecture
 * Implemenrting Global Exception Handler
